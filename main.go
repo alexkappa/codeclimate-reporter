@@ -1,11 +1,10 @@
 package main
 
 import (
+	"flag"
 	"io"
 	"log"
 	"os"
-
-	"github.com/ogier/pflag"
 )
 
 var Version = "master"
@@ -21,9 +20,9 @@ var args struct {
 }
 
 func init() {
-	pflag.StringVarP(&args.inputFile, "input-file", "f", "-", "input file, defaults to stdin")
-	pflag.BoolVarP(&args.skipTLSVerify, "insecure-skip-tls-verify", "S", false, "skips verification of the chain of certificate")
-	pflag.Parse()
+	flag.StringVar(&args.inputFile, "f", "-", "input file, defaults to stdin")
+	flag.BoolVar(&args.skipTLSVerify, "S", false, "skips verification of the chain of certificate")
+	flag.Parse()
 
 	if args.inputFile == "-" {
 		input = os.Stdin
@@ -36,7 +35,7 @@ func main() {
 		log.Println(err)
 		os.Exit(1)
 	}
-	if err = newReporter().send(report); err != nil {
+	if err = newReporter(args.skipTLSVerify).send(report); err != nil {
 		log.Println(err)
 		os.Exit(1)
 	}

@@ -1,0 +1,29 @@
+box: alexkappa/golang-libgit2
+build:
+  steps:
+
+    - setup-go-workspace
+
+    - script:
+        name: go get
+        code: |
+          go get ./...
+
+    - script:
+        name: go build
+        code: |
+          go build
+
+    - script:
+        name: go test
+        code: |
+          go test -coverprofile profile.cov
+
+    - script:
+        name: send coverage report
+        code: |
+          CODECLIMATE_REPO_TOKEN=16b43ed22b66e281762cf5975a6d1b9dc7c446fda21be187d686a8f5c1e127ae codeclimate-reporter < profile.cov
+
+
+
+

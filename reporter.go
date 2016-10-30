@@ -26,11 +26,11 @@ type reporter struct {
 	*http.Client
 }
 
-func newReporter() *reporter {
+func newReporter(skipTLSVerify bool) *reporter {
 	return &reporter{
 		&http.Client{
 			Transport: &http.Transport{
-				TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+				TLSClientConfig: &tls.Config{InsecureSkipVerify: skipTLSVerify},
 			},
 		},
 	}
