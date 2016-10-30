@@ -23,7 +23,7 @@ build:
     - script:
         name: copy bin
         code: |
-          cp codeclimate-reporter $WERKER_OUTPOUT_DIR/
+          cp codeclimate-reporter $WERCKER_OUTPUT_DIR/
 
     # - script:
     #     name: send coverage report
