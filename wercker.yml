@@ -49,3 +49,4 @@ release:
       - github-upload-asset:
           token: $GITHUB_TOKEN
           file: codeclimate-reporter-$VERSION.tar.gz
+          content-type: application/octet-stream
