@@ -71,11 +71,11 @@ func collectCoverage(r io.Reader) (coverage, error) {
 
 	f, err := b.ReadString('\n')
 	if err != nil {
-		return nil, errors.Wrap(err, "read failed")
+		return nil, errors.Wrap(err, "Read failed")
 	}
 
 	if !strings.HasPrefix(f, "mode:") {
-		return nil, errors.New("unknown coverage format")
+		return nil, errors.New("Unknown coverage format")
 	}
 
 	cov := make(coverage)
@@ -86,14 +86,14 @@ func collectCoverage(r io.Reader) (coverage, error) {
 			if err == io.EOF {
 				break
 			}
-			return nil, errors.Wrap(err, "read failed")
+			return nil, errors.Wrap(err, "Read failed")
 		}
 
 		regex := regexp.MustCompile(`(.*?):(\d+).\d+,(\d+).\d+ \d+ (\d+)`)
 
 		var match []string
 		if match = regex.FindStringSubmatch(l); len(match) != 5 {
-			return nil, errors.Wrap(err, "regexp match failed")
+			return nil, errors.Wrap(err, "Regexp match failed")
 		}
 
 		file := os.Getenv("GOPATH") + "/src/" + match[1]
