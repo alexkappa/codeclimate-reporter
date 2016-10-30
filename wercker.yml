@@ -2,7 +2,8 @@ box: alexkappa/golang-libgit2
 build:
   steps:
 
-    - setup-go-workspace
+    - setup-go-workspace:
+        package-dir: github.com/alexkappa/codeclimate-reporter
 
     - script:
         name: go build
@@ -17,4 +18,4 @@ build:
     - script:
         name: send coverage report
         code: |
-          CODECLIMATE_REPO_TOKEN=16b43ed22b66e281762cf5975a6d1b9dc7c446fda21be187d686a8f5c1e127ae ./codeclimate-reporter < profile.cov
+          CODECLIMATE_REPO_TOKEN=16b43ed22b66e281762cf5975a6d1b9dc7c446fda21be187d686a8f5c1e127ae ./codeclimate-reporter -v < profile.cov

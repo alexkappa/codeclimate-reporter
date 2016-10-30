@@ -3,6 +3,8 @@ package main
 import (
 	"bufio"
 	"bytes"
+	"crypto/sha1"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"os"
@@ -48,7 +50,7 @@ func collectSource(c coverage) ([]SourceFile, error) {
 		src = append(src, SourceFile{
 			Name:     rel,
 			Coverage: cov,
-			BlobID:   "",
+			BlobID:   calculateBlobID(b),
 		})
 	}
 
@@ -117,21 +119,11 @@ func collectCoverage(r io.Reader) (coverage, error) {
 	return cov, nil
 }
 
-func lineCount(r io.Reader) (int, error) {
-	buf := make([]byte, 32*1024)
-	count := 0
-	lineSep := []byte{'\n'}
-
-	for {
-		c, err := r.Read(buf)
-		count += bytes.Count(buf[:c], lineSep)
-
-		switch {
-		case err == io.EOF:
-			return count, nil
-
-		case err != nil:
-			return count, err
-		}
-	}
+func calculateBlobID(b []byte) string {
+	h := sha1.New()
+	io.WriteString(h, "blob ")
+	io.WriteString(h, strconv.Itoa(len(b)))
+	io.WriteString(h, ` \0`)
+	h.Write(b)
+	return fmt.Sprintf("%x", h.Sum(nil))
 }
