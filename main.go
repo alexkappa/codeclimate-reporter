@@ -2,8 +2,8 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"io"
-	"log"
 	"os"
 
 	"github.com/alexkappa/errors"
@@ -11,10 +11,7 @@ import (
 
 var Version = "master"
 
-var (
-	input  io.Reader
-	logger *log.Logger
-)
+var input io.Reader
 
 var args struct {
 	inputFile     string
@@ -36,11 +33,12 @@ func init() {
 func main() {
 	report, err := makeReport(input)
 	if err != nil {
-		log.Println(err)
+		fmt.Println(err)
 		os.Exit(1)
 	}
 	if err = newReporter(args.skipTLSVerify).send(report); err != nil {
-		log.Println(err)
+		fmt.Println(err)
 		os.Exit(1)
 	}
+	fmt.Println("Test coverage data sent")
 }
