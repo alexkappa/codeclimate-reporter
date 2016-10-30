@@ -7,12 +7,6 @@
 			"path": "github.com/alexkappa/errors",
 			"revision": "1d151215dfb372c3eaad70f1c1be63426e364459",
 			"revisionTime": "2016-01-25T12:22:55Z"
-		},
-		{
-			"checksumSHA1": "1cIN02y+efh5pytFmlgYn7ZR43s=",
-			"path": "github.com/libgit2/git2go",
-			"revision": "e9668545c972870637b79670bcb532401353c3d6",
-			"revisionTime": "2016-10-03T09:53:29Z"
 		}
 	],
 	"rootPath": "github.com/alexkappa/codeclimate-reporter"
