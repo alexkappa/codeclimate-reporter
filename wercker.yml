@@ -13,7 +13,7 @@ build:
     - script:
         name: go build
         code: |
-          go build -ldflags "-w -X github.com/alexkappa/codeclimate-reporter/main.Version=$VERSION"
+          go build -ldflags "-w -X main.Version=$VERSION"
 
     - script:
         name: go test
