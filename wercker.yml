@@ -6,9 +6,14 @@ build:
         package-dir: github.com/alexkappa/codeclimate-reporter
 
     - script:
+        name: update version
+        code: |
+          export VERSION=$(git describe --tags)
+
+    - script:
         name: go build
         code: |
-          go build
+          go build -ldflags "-w -X github.com/alexkappa/codeclimate-reporter.Version=$VERSION"
 
     - script:
         name: go test
@@ -16,6 +21,31 @@ build:
           go test -coverprofile profile.cov
 
     - script:
-        name: send coverage report
+        name: copy bin
         code: |
-          CODECLIMATE_REPO_TOKEN=16b43ed22b66e281762cf5975a6d1b9dc7c446fda21be187d686a8f5c1e127ae ./codeclimate-reporter -v < profile.cov
+          cp codeclimate-reporter $WERKER_OUTPOUT_DIR/
+
+    # - script:
+    #     name: send coverage report
+    #     code: |
+    #       CODECLIMATE_REPO_TOKEN=16b43ed22b66e281762cf5975a6d1b9dc7c446fda21be187d686a8f5c1e127ae ./codeclimate-reporter -v < profile.cov
+release:
+  steps:
+
+      - script:
+          name: check version
+          code: |
+            export VERSION=$(./codeclimate-reporter -V)
+
+      - script:
+          name: archive binary
+          code: |
+            tar -czf codeclimate-reporter-$VERSION.tar.gz codeclimate-reporter
+
+      - github-create-release:
+          token: $GITHUB_TOKEN
+          tag: $VERSION
+
+      - github-upload-asset:
+          token: $GITHUB_TOKEN
+          file: codeclimate-reporter-$VERSION.tar.gz

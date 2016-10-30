@@ -18,12 +18,14 @@ var args struct {
 	inputFile     string
 	skipTLSVerify bool
 	verbose       bool
+	version       bool
 }
 
 func init() {
 	flag.StringVar(&args.inputFile, "f", "-", "input file, defaults to stdin")
 	flag.BoolVar(&args.skipTLSVerify, "S", false, "skips verification of the chain of certificate")
 	flag.BoolVar(&args.verbose, "v", false, "print more verbose output")
+	flag.BoolVar(&args.version, "V", false, "print version")
 	flag.Parse()
 
 	if args.inputFile == "-" {
@@ -34,6 +36,10 @@ func init() {
 }
 
 func main() {
+	if args.version {
+		fmt.Print(Version)
+		os.Exit(0)
+	}
 	report, err := makeReport(input)
 	if err != nil {
 		fmt.Println(err)
