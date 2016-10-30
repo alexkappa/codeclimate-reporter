@@ -5,6 +5,8 @@ import (
 	"io"
 	"log"
 	"os"
+
+	"github.com/alexkappa/errors"
 )
 
 var Version = "master"
@@ -27,6 +29,8 @@ func init() {
 	if args.inputFile == "-" {
 		input = os.Stdin
 	}
+
+	errors.PrintTrace = false
 }
 
 func main() {
