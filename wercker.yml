@@ -13,7 +13,7 @@ build:
     - script:
         name: go build
         code: |
-          go build -ldflags "-w -X github.com/alexkappa/codeclimate-reporter.Version=$VERSION"
+          go build -ldflags "-w -X github.com/alexkappa/codeclimate-reporter/main.Version=$VERSION"
 
     - script:
         name: go test
@@ -36,6 +36,7 @@ release:
           name: check version
           code: |
             export VERSION=$(./codeclimate-reporter -V)
+            echo $VERSION
 
       - script:
           name: archive binary
