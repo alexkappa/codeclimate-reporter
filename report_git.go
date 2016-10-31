@@ -37,6 +37,9 @@ func collectGitInfo() (*Git, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "Failed reading commit")
 	}
+
+	fmt.Print("Is HEAD")
+	fmt.Print(ref.Branch().IsHead())
 	return &Git{
 		Head:        ref.Target().String(),
 		Branch:      ref.Shorthand(),
