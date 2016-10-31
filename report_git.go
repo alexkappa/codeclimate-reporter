@@ -30,6 +30,7 @@ func collectGitInfo() (*Git, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "Failed reading head")
 	}
+
 	// branch, err := ref.Name()
 	// if err != nil {
 	// 	return nil, errors.Wrap(err, "Failed reading branch name")
@@ -44,34 +45,28 @@ func collectGitInfo() (*Git, error) {
 		return nil, errors.Wrap(err, "Failed iterator creationg")
 	}
 
+	fmt.Print("REF NAME: ")
+	fmt.Println(ref.Name())
 	for {
 		branch, branchType, _ := it.Next()
 
 		if branch == nil {
 			break
 		}
+
 		name, err := branch.Name()
 		if err != nil {
 			break
 		}
 		fmt.Println(name, branchType)
-
-		fmt.Print("OWNER!!")
-		owner := branch.Owner()
-		refOwn, err := owner.Head()
-		if err != nil {
-			return nil, errors.Wrap(err, "Failed reading head")
-		}
-		fmt.Print("Try owner: ")
-		fmt.Println(refOwn.Branch().Name())
-
 	}
-
+	fmt.Print("Commit id: ")
+	fmt.Println(commit.Id())
 	for i := uint(0); i < commit.ParentCount(); i++ {
 		fmt.Print("parent: ")
-		fmt.Println(commit.Parent(i).TreeId())
+		fmt.Println(commit.Parent(i))
 		fmt.Print("parent id: ")
-		fmt.Println(commit.ParentId(i))
+		fmt.Println(repo.Lookup(commit.ParentId(i)))
 	}
 	fmt.Print("OWNER!!")
 	owner := commit.Owner()
