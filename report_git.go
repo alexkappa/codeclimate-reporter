@@ -21,8 +21,7 @@ func (g *Git) String() string {
 
 func collectGitInfo() (*Git, error) {
 	cwd, _ := os.Getwd()
-	fmt.Print("repository name: ")
-	fmt.Println(cwd)
+
 	repo, err := git.OpenRepository(cwd)
 	if err != nil {
 		return nil, errors.Wrap(err, "Failed reading git repository")
@@ -40,8 +39,22 @@ func collectGitInfo() (*Git, error) {
 		return nil, errors.Wrap(err, "Failed reading commit")
 	}
 
-	fmt.Print("Is HEAD ")
-	fmt.Println(ref.Branch().IsHead())
+	it, err := repo.NewBranchIterator(git.BranchAll)
+	if err != nil {
+		return nil, errors.Wrap(err, "Failed iterator creationg")
+	}
+
+	for {
+		branch, branchType, _ := it.Next()
+		if branch == nil {
+			break
+		}
+		name, err := branch.Name()
+		if err != nil {
+			break
+		}
+		fmt.Println(name, branchType)
+	}
 	return &Git{
 		Head:        ref.Target().String(),
 		Branch:      ref.Shorthand(),
