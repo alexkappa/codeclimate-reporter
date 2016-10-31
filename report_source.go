@@ -22,6 +22,20 @@ type SourceFile struct {
 	BlobID   string        `json:"blob_id"`
 }
 
+func (s *SourceFile) String() string {
+	c := make(map[int]int64)
+	for line, hits := range s.Coverage {
+		if hits != nil {
+			c[line] = hits.(int64)
+		}
+	}
+	var buf bytes.Buffer
+	fmt.Fprintf(&buf, "Name: %s\n", s.Name)
+	fmt.Fprintf(&buf, "Coverage: %v\n", c)
+	fmt.Fprintf(&buf, "BlobID: %v\n\n", s.BlobID)
+	return buf.String()
+}
+
 func collectSource(c coverage) ([]SourceFile, error) {
 	src := make([]SourceFile, 0)
 

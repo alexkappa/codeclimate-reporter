@@ -69,6 +69,29 @@ type Report struct {
 	SourceFiles []SourceFile `json:"source_files"`
 }
 
+func (r *Report) String() string {
+	var buf bytes.Buffer
+	fmt.Fprintf(&buf, "Code Coverage Report\n")
+	fmt.Fprintf(&buf, "====================\n\n")
+	fmt.Fprintf(&buf, "Run At: %s\n", time.Unix(r.RunAt, 0).Format(time.RFC3339))
+	fmt.Fprintf(&buf, "Repo Token: %s\n\n", CodeClimateRepoToken)
+	fmt.Fprintf(&buf, "Environment\n")
+	fmt.Fprintf(&buf, "-----------\n\n")
+	buf.WriteString(r.Environment.String())
+	fmt.Fprintf(&buf, "Git\n")
+	fmt.Fprintf(&buf, "---\n\n")
+	buf.WriteString(r.Git.String())
+	fmt.Fprintf(&buf, "Continuous Integration\n")
+	fmt.Fprintf(&buf, "----------------------\n\n")
+	buf.WriteString(r.CI.String())
+	fmt.Fprintf(&buf, "Source Files\n")
+	fmt.Fprintf(&buf, "------------\n\n")
+	for _, file := range r.SourceFiles {
+		buf.WriteString(file.String())
+	}
+	return buf.String()
+}
+
 func makeReport(r io.Reader) (*Report, error) {
 	env, err := collectEnv()
 	if err != nil {

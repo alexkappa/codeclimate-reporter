@@ -1,7 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"os"
+	"time"
 
 	"github.com/alexkappa/errors"
 	git "github.com/libgit2/git2go"
@@ -11,6 +13,10 @@ type Git struct {
 	Head        string `json:"head"`
 	Branch      string `json:"branch"`
 	CommittedAt int64  `json:"committed_at"`
+}
+
+func (g *Git) String() string {
+	return fmt.Sprintf("Head: %s\nBranch: %s\nCommitted At: %s\n\n", g.Head, g.Branch, time.Unix(g.CommittedAt, 0).Format(time.RFC3339))
 }
 
 func collectGitInfo() (*Git, error) {

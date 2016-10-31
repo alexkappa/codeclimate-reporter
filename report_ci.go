@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bytes"
+	"fmt"
 	"os"
 	"strings"
 )
@@ -13,6 +15,17 @@ type CI struct {
 	Name        string `json:"name"`
 	PullRequest string `json:"pull_request"`
 	WorkerID    string `json:"worker_id"`
+}
+
+func (c *CI) String() string {
+	var buf bytes.Buffer
+	fmt.Fprintf(&buf, "Name: %s\n", c.Name)
+	fmt.Fprintf(&buf, "BuildID: %s\n", c.BuildID)
+	fmt.Fprintf(&buf, "BuildURL: %s\n", c.BuildURL)
+	fmt.Fprintf(&buf, "CommitSHA: %s\n", c.CommitSHA)
+	fmt.Fprintf(&buf, "PullRequest: %s\n", c.PullRequest)
+	fmt.Fprintf(&buf, "WorkerID: %s\n\n", c.WorkerID)
+	return buf.String()
 }
 
 func collectCIInfo() (*CI, error) {

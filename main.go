@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"flag"
 	"fmt"
 	"io"
@@ -19,17 +18,23 @@ var args struct {
 	skipTLSVerify bool
 	verbose       bool
 	version       bool
+	dryRun        bool
 }
 
 func init() {
-	flag.StringVar(&args.inputFile, "f", "-", "input file, defaults to stdin")
-	flag.BoolVar(&args.skipTLSVerify, "S", false, "skips verification of the chain of certificate")
-	flag.BoolVar(&args.verbose, "v", false, "print more verbose output")
-	flag.BoolVar(&args.version, "V", false, "print version")
+	flag.StringVar(&args.inputFile, "file", "-", "input file, defaults to stdin")
+	flag.BoolVar(&args.skipTLSVerify, "skip-tls-verify", false, "skips verification of the chain of certificate")
+	flag.BoolVar(&args.verbose, "verbose", false, "print more verbose output")
+	flag.BoolVar(&args.version, "version", false, "print version")
+	flag.BoolVar(&args.dryRun, "dry-run", false, "don't send the report, this enables -verbose")
 	flag.Parse()
 
 	if args.inputFile == "-" {
 		input = os.Stdin
+	}
+
+	if args.dryRun {
+		args.verbose = true
 	}
 
 	errors.PrintTrace = false
@@ -46,16 +51,13 @@ func main() {
 		os.Exit(1)
 	}
 	if args.verbose {
-		b, err := json.MarshalIndent(report, "  ", "  ")
-		if err != nil {
+		fmt.Println(report.String())
+	}
+	if !args.dryRun {
+		if err = newReporter(args.skipTLSVerify).send(report); err != nil {
 			fmt.Println(err)
 			os.Exit(128)
 		}
-		fmt.Printf("Test coverage report:\n%s\n", b)
+		fmt.Println("Test coverage report sent")
 	}
-	if err = newReporter(args.skipTLSVerify).send(report); err != nil {
-		fmt.Println(err)
-		os.Exit(128)
-	}
-	fmt.Println("Test coverage report sent")
 }
