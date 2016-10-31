@@ -29,17 +29,17 @@ func collectGitInfo() (*Git, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "Failed reading head")
 	}
-	branch, err := ref.Branch().Name()
-	if err != nil {
-		return nil, errors.Wrap(err, "Failed reading branch name")
-	}
+	// branch, err := ref.Name()
+	// if err != nil {
+	// 	return nil, errors.Wrap(err, "Failed reading branch name")
+	// }
 	commit, err := repo.LookupCommit(ref.Target())
 	if err != nil {
 		return nil, errors.Wrap(err, "Failed reading commit")
 	}
 	return &Git{
 		Head:        ref.Target().String(),
-		Branch:      branch,
+		Branch:      ref.Shorthand(),
 		CommittedAt: commit.Committer().When.Unix(),
 	}, nil
 }
