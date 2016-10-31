@@ -21,6 +21,8 @@ func (g *Git) String() string {
 
 func collectGitInfo() (*Git, error) {
 	cwd, _ := os.Getwd()
+	fmt.Print("repository name: ")
+	fmt.Println(cwd)
 	repo, err := git.OpenRepository(cwd)
 	if err != nil {
 		return nil, errors.Wrap(err, "Failed reading git repository")
@@ -38,8 +40,8 @@ func collectGitInfo() (*Git, error) {
 		return nil, errors.Wrap(err, "Failed reading commit")
 	}
 
-	fmt.Print("Is HEAD")
-	fmt.Print(ref.Branch().IsHead())
+	fmt.Print("Is HEAD ")
+	fmt.Println(ref.Branch().IsHead())
 	return &Git{
 		Head:        ref.Target().String(),
 		Branch:      ref.Shorthand(),
