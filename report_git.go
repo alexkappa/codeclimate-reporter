@@ -46,6 +46,7 @@ func collectGitInfo() (*Git, error) {
 
 	for {
 		branch, branchType, _ := it.Next()
+
 		if branch == nil {
 			break
 		}
@@ -54,6 +55,16 @@ func collectGitInfo() (*Git, error) {
 			break
 		}
 		fmt.Println(name, branchType)
+
+		fmt.Print("OWNER!!")
+		owner := branch.Owner()
+		refOwn, err := owner.Head()
+		if err != nil {
+			return nil, errors.Wrap(err, "Failed reading head")
+		}
+		fmt.Print("Try owner: ")
+		fmt.Println(refOwn.Branch().Name())
+
 	}
 
 	for i := uint(0); i < commit.ParentCount(); i++ {
