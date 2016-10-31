@@ -29,8 +29,6 @@ build:
     - script:
         name: send coverage report
         code: |
-          git branch
-          cat .git/HEAD
           CODECLIMATE_REPO_TOKEN=16b43ed22b66e281762cf5975a6d1b9dc7c446fda21be187d686a8f5c1e127ae ./codeclimate-reporter -dry-run < profile.cov
 release:
   steps:
