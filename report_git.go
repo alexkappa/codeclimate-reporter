@@ -55,6 +55,24 @@ func collectGitInfo() (*Git, error) {
 		}
 		fmt.Println(name, branchType)
 	}
+
+	for i := uint(0); i < commit.ParentCount(); i++ {
+		fmt.Print("parent: ")
+		fmt.Println(commit.Parent(i).TreeId())
+		fmt.Print("parent id: ")
+		fmt.Println(commit.ParentId(i))
+	}
+	fmt.Print("OWNER!!")
+	owner := commit.Owner()
+	refOwn, err := owner.Head()
+	if err != nil {
+		return nil, errors.Wrap(err, "Failed reading head")
+	}
+	fmt.Print("Try owner: ")
+	fmt.Println(refOwn.Branch().Name())
+	fmt.Println(repo)
+	fmt.Print("Tree ID: ")
+	fmt.Println(commit.TreeId())
 	return &Git{
 		Head:        ref.Target().String(),
 		Branch:      ref.Shorthand(),
