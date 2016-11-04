@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 	"time"
@@ -16,30 +17,34 @@ type Git struct {
 }
 
 func (g *Git) String() string {
-	return fmt.Sprintf("Head: %s\nBranch: %s\nCommitted At: %s\n\n", g.Head, g.Branch, time.Unix(g.CommittedAt, 0).Format(time.RFC3339))
+	var buf bytes.Buffer
+	fmt.Fprintf(&buf, "Head: %s\n", g.Head)
+	fmt.Fprintf(&buf, "Branch: %s\n", g.Branch)
+	fmt.Fprintf(&buf, "Committed At: %s\n\n", time.Unix(g.CommittedAt, 0).Format(time.RFC3339))
+	return buf.String()
 }
 
 func collectGitInfo() (*Git, error) {
+
 	cwd, _ := os.Getwd()
-	repo, err := git.OpenRepository(cwd)
+	rep, err := git.OpenRepository(cwd)
 	if err != nil {
 		return nil, errors.Wrap(err, "Failed reading git repository")
 	}
-	ref, err := repo.Head()
+
+	ref, err := rep.Head()
 	if err != nil {
 		return nil, errors.Wrap(err, "Failed reading head")
 	}
-	// branch, err := ref.Name()
-	// if err != nil {
-	// 	return nil, errors.Wrap(err, "Failed reading branch name")
-	// }
-	commit, err := repo.LookupCommit(ref.Target())
+
+	cmt, err := rep.LookupCommit(ref.Target())
 	if err != nil {
 		return nil, errors.Wrap(err, "Failed reading commit")
 	}
+
 	return &Git{
 		Head:        ref.Target().String(),
 		Branch:      ref.Shorthand(),
-		CommittedAt: commit.Committer().When.Unix(),
+		CommittedAt: cmt.Committer().When.Unix(),
 	}, nil
 }
