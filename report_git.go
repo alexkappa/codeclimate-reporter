@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/alexkappa/errors"
@@ -45,7 +44,7 @@ func collectGitInfo() (*Git, error) {
 
 	return &Git{
 		Head:        ref.Target().String(),
-		Branch:      strings.Split(ref.Name(), "/")[2],
+		Branch:      ref.Shorthand(),
 		CommittedAt: cmt.Committer().When.Unix(),
 	}, nil
 }
