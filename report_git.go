@@ -1,12 +1,10 @@
 package main
 
 import (
-	"bufio"
 	"bytes"
 	"fmt"
 	"os"
 	"os/exec"
-	"strings"
 	"time"
 
 	"github.com/alexkappa/errors"
@@ -70,7 +68,8 @@ func collectGitBranch(commitID string) (string, error) {
 	if err != nil {
 		return "", errors.Wrap(err, stderr.String())
 	}
-	s := bufio.NewScanner(&stdout)
+	return fmt.Sprintf("%s", cmd.Stdout), nil
+	/*s := bufio.NewScanner(&stdout)
 	s.Split(bufio.ScanLines)
 	for s.Scan() {
 		if strings.HasPrefix(s.Text(), "*") {
@@ -80,5 +79,5 @@ func collectGitBranch(commitID string) (string, error) {
 	if s.Err() != nil {
 		return "", s.Err()
 	}
-	return "", errors.New("Failed parsing `git branch` output")
+	return "", errors.New("Failed parsing `git branch` output") */
 }
