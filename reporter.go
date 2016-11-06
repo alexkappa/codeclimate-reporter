@@ -36,27 +36,30 @@ func newReporter(skipTLSVerify bool) *reporter {
 	}
 }
 
-func (rep *reporter) send(r *Report) (*http.Response, error) {
+func (rep *reporter) send(r *Report) (*http.Request, *http.Response, error) {
 	var body bytes.Buffer
-	err := json.NewEncoder(&body).Encode(r)
+
+	enc := json.NewEncoder(&body)
+	enc.SetIndent("", "  ")
+	err := enc.Encode(r)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	request, _ := http.NewRequest("POST", "https://"+CodeClimateAPIHost+"/test_reports", &body)
-	request.Header.Set("User-Agent", "Code Climate (Go Test Reporter "+Version+")")
-	request.Header.Set("Content-Type", "application/json")
+	req, _ := http.NewRequest("POST", "https://"+CodeClimateAPIHost+"/test_reports", &body)
+	req.Header.Set("User-Agent", "Code Climate (Go Test Reporter "+Version+")")
+	req.Header.Set("Content-Type", "application/json")
 
-	response, err := rep.Do(request)
+	res, err := rep.Do(req)
 	if err != nil {
-		return response, err
+		return req, res, err
 	}
 
-	if response.StatusCode == 401 {
-		return response, fmt.Errorf("an invalid CODECLIMATE_REPO_TOKEN token was specified")
+	if res.StatusCode == 401 {
+		return req, res, fmt.Errorf("an invalid CODECLIMATE_REPO_TOKEN token was specified")
 	}
 
-	return response, nil
+	return req, res, nil
 }
 
 type Report struct {

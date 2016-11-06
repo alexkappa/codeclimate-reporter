@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"net/http/httputil"
 	"os"
 
 	"github.com/alexkappa/errors"
@@ -33,10 +34,6 @@ func init() {
 		input = os.Stdin
 	}
 
-	if args.dryRun {
-		args.verbose = true
-	}
-
 	errors.PrintTrace = false
 }
 
@@ -50,19 +47,20 @@ func main() {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-	if args.verbose {
-		fmt.Println(report.String())
-	}
 	if !args.dryRun {
-		r, err := newReporter(args.skipTLSVerify).send(report)
+		req, res, err := newReporter(args.skipTLSVerify).send(report)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(128)
 		}
 		fmt.Printf("Test coverage report sent\n")
 		if args.verbose {
-			r.Write(os.Stdout)
+			b, _ := httputil.DumpRequest(req, false)
+			fmt.Printf("%s\n", b)
+			res.Write(os.Stdout)
 			io.WriteString(os.Stdout, "\n")
 		}
+	} else {
+		fmt.Println(report.String())
 	}
 }

@@ -1,12 +1,9 @@
 package main
 
 import (
-	"bufio"
 	"bytes"
 	"fmt"
 	"os"
-	"os/exec"
-	"strings"
 	"time"
 
 	"github.com/alexkappa/errors"
@@ -40,7 +37,7 @@ func collectGitInfo() (*Git, error) {
 		return nil, errors.Wrap(err, "Failed reading head")
 	}
 
-	bch, err := collectGitBranch()
+	bch, err := ref.Branch().Name()
 	if err != nil {
 		return nil, errors.Wrap(err, "Failed reading branch name")
 	}
@@ -51,30 +48,8 @@ func collectGitInfo() (*Git, error) {
 	}
 
 	return &Git{
-		Head:        ref.Target().String(),
 		Branch:      bch,
+		Head:        ref.Target().String(),
 		CommittedAt: cmt.Committer().When.Unix(),
 	}, nil
-}
-
-func collectGitBranch() (string, error) {
-	var stdout, stderr bytes.Buffer
-	cmd := exec.Command("git", "branch")
-	cmd.Stdout = &stdout
-	cmd.Stderr = &stderr
-	err := cmd.Run()
-	if err != nil {
-		return "", errors.Wrap(err, stderr.String())
-	}
-	s := bufio.NewScanner(&stdout)
-	s.Split(bufio.ScanLines)
-	for s.Scan() {
-		if strings.HasPrefix(s.Text(), "*") {
-			return strings.TrimPrefix(s.Text(), "* "), nil
-		}
-	}
-	if s.Err() != nil {
-		return "", s.Err()
-	}
-	return "", errors.New("Failed parsing `git branch` output")
 }
