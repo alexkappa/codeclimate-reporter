@@ -1,8 +1,12 @@
 package main
 
 import (
+	"bufio"
+	"bytes"
 	"fmt"
 	"os"
+	"os/exec"
+	"strings"
 	"time"
 
 	"github.com/alexkappa/errors"
@@ -16,72 +20,65 @@ type Git struct {
 }
 
 func (g *Git) String() string {
-	return fmt.Sprintf("Head: %s\nBranch: %s\nCommitted At: %s\n\n", g.Head, g.Branch, time.Unix(g.CommittedAt, 0).Format(time.RFC3339))
+	var buf bytes.Buffer
+	fmt.Fprintf(&buf, "Head: %s\n", g.Head)
+	fmt.Fprintf(&buf, "Branch: %s\n", g.Branch)
+	fmt.Fprintf(&buf, "Committed At: %s\n\n", time.Unix(g.CommittedAt, 0).Format(time.RFC3339))
+	return buf.String()
 }
 
 func collectGitInfo() (*Git, error) {
-	cwd, _ := os.Getwd()
 
-	repo, err := git.OpenRepository(cwd)
+	cwd, _ := os.Getwd()
+	rep, err := git.OpenRepository(cwd)
 	if err != nil {
 		return nil, errors.Wrap(err, "Failed reading git repository")
 	}
-	ref, err := repo.Head()
+
+	ref, err := rep.Head()
 	if err != nil {
 		return nil, errors.Wrap(err, "Failed reading head")
 	}
-
-	// branch, err := ref.Name()
-	// if err != nil {
-	// 	return nil, errors.Wrap(err, "Failed reading branch name")
-	// }
-	commit, err := repo.LookupCommit(ref.Target())
+	commit, err := rep.LookupCommit(ref.Target())
 	if err != nil {
 		return nil, errors.Wrap(err, "Failed reading commit")
 	}
 
-	it, err := repo.NewBranchIterator(git.BranchAll)
+	bch, err := collectGitBranch(fmt.Sprintf("%s", commit.Id()))
 	if err != nil {
-		return nil, errors.Wrap(err, "Failed iterator creationg")
+		return nil, errors.Wrap(err, "Failed reading branch name")
 	}
 
-	fmt.Print("REF NAME: ")
-	fmt.Println(ref.Name())
-	for {
-		branch, branchType, _ := it.Next()
-
-		if branch == nil {
-			break
-		}
-
-		name, err := branch.Name()
-		if err != nil {
-			break
-		}
-		fmt.Println(name, branchType)
-	}
-	fmt.Print("Commit id: ")
-	fmt.Println(commit.Id())
-	for i := uint(0); i < commit.ParentCount(); i++ {
-		fmt.Print("parent: ")
-		fmt.Println(commit.Parent(i))
-		fmt.Print("parent id: ")
-		fmt.Println(repo.Lookup(commit.ParentId(i)))
-	}
-	fmt.Print("OWNER!!")
-	owner := commit.Owner()
-	refOwn, err := owner.Head()
+	cmt, err := rep.LookupCommit(ref.Target())
 	if err != nil {
-		return nil, errors.Wrap(err, "Failed reading head")
+		return nil, errors.Wrap(err, "Failed reading commit")
 	}
-	fmt.Print("Try owner: ")
-	fmt.Println(refOwn.Branch().Name())
-	fmt.Println(repo)
-	fmt.Print("Tree ID: ")
-	fmt.Println(commit.TreeId())
+
 	return &Git{
 		Head:        ref.Target().String(),
-		Branch:      ref.Shorthand(),
-		CommittedAt: commit.Committer().When.Unix(),
+		Branch:      bch,
+		CommittedAt: cmt.Committer().When.Unix(),
 	}, nil
+}
+
+func collectGitBranch(commitID string) (string, error) {
+	var stdout, stderr bytes.Buffer
+	cmd := exec.Command("git", fmt.Sprintf("branch -r --contains %s", commitID))
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
+	err := cmd.Run()
+	if err != nil {
+		return "", errors.Wrap(err, stderr.String())
+	}
+	s := bufio.NewScanner(&stdout)
+	s.Split(bufio.ScanLines)
+	for s.Scan() {
+		if strings.HasPrefix(s.Text(), "*") {
+			return strings.TrimPrefix(s.Text(), "* "), nil
+		}
+	}
+	if s.Err() != nil {
+		return "", s.Err()
+	}
+	return "", errors.New("Failed parsing `git branch` output")
 }

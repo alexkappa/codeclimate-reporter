@@ -36,11 +36,11 @@ func newReporter(skipTLSVerify bool) *reporter {
 	}
 }
 
-func (rep *reporter) send(r *Report) error {
+func (rep *reporter) send(r *Report) (*http.Response, error) {
 	var body bytes.Buffer
 	err := json.NewEncoder(&body).Encode(r)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	request, _ := http.NewRequest("POST", "https://"+CodeClimateAPIHost+"/test_reports", &body)
@@ -49,14 +49,14 @@ func (rep *reporter) send(r *Report) error {
 
 	response, err := rep.Do(request)
 	if err != nil {
-		return err
+		return response, err
 	}
 
 	if response.StatusCode == 401 {
-		return fmt.Errorf("an invalid CODECLIMATE_REPO_TOKEN token was specified")
+		return response, fmt.Errorf("an invalid CODECLIMATE_REPO_TOKEN token was specified")
 	}
 
-	return nil
+	return response, nil
 }
 
 type Report struct {

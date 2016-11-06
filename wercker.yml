@@ -10,27 +10,22 @@ build:
         code: |
           export VERSION=$(git describe --tags)
           echo $VERSION
-
     - script:
         name: go build
         code: |
           go build -ldflags "-w -X main.Version=$VERSION"
-
     - script:
         name: go test
         code: |
           go test -coverprofile profile.cov
-
     - script:
         name: copy bin
         code: |
           cp codeclimate-reporter $WERCKER_OUTPUT_DIR/
-
     - script:
         name: send coverage report
         code: |
-          git branch -r --contains f10b84668a4341dda390112d6ab8f1559cfecbe2
-          CODECLIMATE_REPO_TOKEN=16b43ed22b66e281762cf5975a6d1b9dc7c446fda21be187d686a8f5c1e127ae ./codeclimate-reporter -dry-run < profile.cov
+          CODECLIMATE_REPO_TOKEN=16b43ed22b66e281762cf5975a6d1b9dc7c446fda21be187d686a8f5c1e127ae ./codeclimate-reporter -verbose -dry-run < profile.cov
 release:
   steps:
 
@@ -39,12 +34,10 @@ release:
           code: |
             export VERSION=$(./codeclimate-reporter -version)
             echo $VERSION
-
       - script:
           name: archive binary
           code: |
             tar -czf codeclimate-reporter-$VERSION.tar.gz codeclimate-reporter
-
       - github-create-release:
           token: $GITHUB_TOKEN
           tag: $VERSION
