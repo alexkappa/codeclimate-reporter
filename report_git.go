@@ -63,7 +63,7 @@ func collectGitInfo() (*Git, error) {
 
 func collectGitBranch(commitID string) (string, error) {
 	var stdout, stderr bytes.Buffer
-	cmd := exec.Command("git", fmt.Sprintf("branch -r --contains %s", commitID))
+	cmd := exec.Command("git", "branch -r --contains "+commitID)
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
 	err := cmd.Run()
