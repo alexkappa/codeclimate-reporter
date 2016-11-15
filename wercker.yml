@@ -30,7 +30,6 @@ build:
         name: send coverage report
         code: |
           CODECLIMATE_REPO_TOKEN=16b43ed22b66e281762cf5975a6d1b9dc7c446fda21be187d686a8f5c1e127ae ./codeclimate-reporter -verbose < profile.cov
-          
 release:
   steps:
 
@@ -39,10 +38,12 @@ release:
           code: |
             export VERSION=$(./codeclimate-reporter -version)
             echo $VERSION
+
       - script:
           name: archive binary
           code: |
             tar -czf codeclimate-reporter-$VERSION.tar.gz codeclimate-reporter
+            
       - github-create-release:
           token: $GITHUB_TOKEN
           tag: $VERSION
