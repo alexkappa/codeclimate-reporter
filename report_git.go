@@ -69,15 +69,4 @@ func collectGitBranch(commitID string) (string, error) {
 		return "", errors.Wrap(err, stderr.String())
 	}
 	return fmt.Sprintf("%s", cmd.Stdout), nil
-	/*s := bufio.NewScanner(&stdout)
-	s.Split(bufio.ScanLines)
-	for s.Scan() {
-		if strings.HasPrefix(s.Text(), "*") {
-			return strings.TrimPrefix(s.Text(), "* "), nil
-		}
-	}
-	if s.Err() != nil {
-		return "", s.Err()
-	}
-	return "", errors.New("Failed parsing `git branch` output") */
 }
