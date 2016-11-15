@@ -43,7 +43,7 @@ release:
           name: archive binary
           code: |
             tar -czf codeclimate-reporter-$VERSION.tar.gz codeclimate-reporter
-            
+
       - github-create-release:
           token: $GITHUB_TOKEN
           tag: $VERSION
