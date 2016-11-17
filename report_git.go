@@ -42,7 +42,7 @@ func collectGitInfo() (*Git, error) {
 		return nil, errors.Wrap(err, "Failed reading commit")
 	}
 
-	bch, err := collectGitBranch(fmt.Sprintf("%s", commit.Id()))
+	bch, err := collectGitBranch(commit.Id().String())
 	if err != nil {
 		return nil, errors.Wrap(err, "Failed reading branch name")
 	}
@@ -68,5 +68,5 @@ func collectGitBranch(commitID string) (string, error) {
 	if err != nil {
 		return "", errors.Wrap(err, stderr.String())
 	}
-	return fmt.Sprintf("%s", cmd.Stdout), nil
+	return stdout.String(), nil
 }
