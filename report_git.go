@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"os"
+	"os/exec"
 	"time"
 
 	"github.com/alexkappa/errors"
@@ -36,8 +37,12 @@ func collectGitInfo() (*Git, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "Failed reading head")
 	}
+	commit, err := rep.LookupCommit(ref.Target())
+	if err != nil {
+		return nil, errors.Wrap(err, "Failed reading commit")
+	}
 
-	bch, err := ref.Branch().Name()
+	bch, err := collectGitBranch(commit.Id().String())
 	if err != nil {
 		return nil, errors.Wrap(err, "Failed reading branch name")
 	}
@@ -48,8 +53,20 @@ func collectGitInfo() (*Git, error) {
 	}
 
 	return &Git{
-		Branch:      bch,
 		Head:        ref.Target().String(),
+		Branch:      bch,
 		CommittedAt: cmt.Committer().When.Unix(),
 	}, nil
+}
+
+func collectGitBranch(commitID string) (string, error) {
+	var stdout, stderr bytes.Buffer
+	cmd := exec.Command("git", "branch", "-r", "--contains", commitID)
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
+	err := cmd.Run()
+	if err != nil {
+		return "", errors.Wrap(err, stderr.String())
+	}
+	return stdout.String(), nil
 }
